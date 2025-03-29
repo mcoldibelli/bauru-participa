@@ -1,3 +1,4 @@
+from typing import List
 from database.models import Poll
 from database.database import db
 
@@ -12,3 +13,6 @@ def create_poll(title: str, description: str) -> Poll:
     except Exception as e:
         db.session.rollback()
         raise e
+    
+def list_all_polls() -> List[Poll]:
+    return db.session.query.all(Poll)

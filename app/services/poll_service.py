@@ -15,4 +15,7 @@ def create_poll(title: str, description: str) -> Poll:
         raise e
     
 def list_all_polls() -> List[Poll]:
-    return db.session.query.all(Poll)
+    try:
+        return db.session.query(Poll).all()
+    except Exception as e:
+        raise e

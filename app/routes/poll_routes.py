@@ -31,14 +31,14 @@ def create_poll_route():
          return error_response(str(e), HTTPStatus.INTERNAL_SERVER_ERROR)
     
 @poll_bp.route("/", methods=['GET'])
-def list_all_polls_route():
-    polls = db.session.query(Poll).all()
-    poll_list = []
-
-    for poll in polls:
-        poll_data = {
+def list_polls_route():
+    try:
+        polls = list_all_polls()
+        return jsonify([{
+            "id": poll.id,
             "title": poll.title,
             "description": poll.description
-        }
-        poll_list.append(poll_data)
-    return jsonify(poll_list), 200
+        } for poll in polls]), HTTPStatus.OK
+
+    except Exception as e:
+        return error_response(str(e), HTTPStatus.INTERNAL_SERVER_ERROR)

@@ -1,6 +1,6 @@
 from database.database import create_app, db
 from database.models import User, Poll, PollOption, UserVote
-
+from app.routes import register_routes
 
 app = create_app()
 app.name = 'bauru_participa'
@@ -16,4 +16,5 @@ def init_db():
 
 if __name__ == "__main__":
     init_db()
+    register_routes(app)
     app.run()

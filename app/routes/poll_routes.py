@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from http.client import BAD_REQUEST
 from flask import Blueprint, request, jsonify
-from app.services.poll_service import create_poll, list_all_polls
+from app.services.poll_service import create_poll, list_all_polls, list_poll_by_id
 from database.models import Poll
 from database.database import db
 
@@ -39,6 +39,27 @@ def list_polls_route():
             "title": poll.title,
             "description": poll.description
         } for poll in polls]), HTTPStatus.OK
+
+    except Exception as e:
+        return error_response(str(e), HTTPStatus.INTERNAL_SERVER_ERROR)
+    
+@poll_bp.route("/<int:poll_id>", methods=['GET'])
+def list_poll_route(poll_id):
+    try:
+        if poll_id <= 0:
+            return error_response("Invalid poll ID", HTTPStatus.BAD_REQUEST)
+        
+        poll = list_poll_by_id(poll_id)
+
+        if not poll:
+            return jsonify({
+                "message": f"Poll with ID {poll_id} not found"}), HTTPStatus.NOT_FOUND
+
+        return jsonify({
+            "id": poll.id,
+            "title": poll.title,
+            "description": poll.description
+        }), HTTPStatus.OK
 
     except Exception as e:
         return error_response(str(e), HTTPStatus.INTERNAL_SERVER_ERROR)

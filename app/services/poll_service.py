@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from database.models import Poll
 from database.database import db
 
@@ -17,5 +17,11 @@ def create_poll(title: str, description: str) -> Poll:
 def list_all_polls() -> List[Poll]:
     try:
         return db.session.query(Poll).all()
+    except Exception as e:
+        raise e
+
+def list_poll_by_id(poll_id: int) -> Optional[Poll]:
+    try:
+        return db.session.query(Poll).filter(Poll.id == poll_id).first()
     except Exception as e:
         raise e

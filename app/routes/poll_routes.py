@@ -55,10 +55,18 @@ def list_poll_route(poll_id):
             return jsonify({
                 "message": f"Poll with ID {poll_id} not found"}), HTTPStatus.NOT_FOUND
 
+        options = []
+        for option in poll.options:
+            options.append({
+                "id": option.option_id,
+                "description": option.description
+            })
+
         return jsonify({
             "id": poll.id,
             "title": poll.title,
-            "description": poll.description
+            "description": poll.description,
+            "options": options
         }), HTTPStatus.OK
 
     except Exception as e:

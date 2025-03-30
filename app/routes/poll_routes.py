@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from http.client import BAD_REQUEST
 from flask import Blueprint, request, jsonify
-from app.services.poll_service import create_poll, create_poll_option, delete_poll, list_all_polls, list_poll_by_id
+from app.services.poll_service import create_poll, create_poll_option, delete_poll, list_all_polls, list_poll_by_id, list_poll_options
 from database.models import Poll, PollOption
 from database.database import db
 
@@ -109,5 +109,26 @@ def add_option_route(poll_id):
                             "description": new_option.description
                         }}), 201
 
+    except Exception as e:
+        return error_response(f"An unexpected error ocurred. {e}", HTTPStatus.INTERNAL_SERVER_ERROR)
+
+@poll_bp.route("/<int:poll_id>/opcoes", methods=["GET"])
+def list_poll_options_route(poll_id):
+    try:
+        if poll_id <= 0:
+            return error_response("Invalid poll ID", HTTPStatus.BAD_REQUEST)
+
+        options = list_poll_options(poll_id)
+
+        options_list = [{
+            "id": option.option_id,
+            "description": option.description
+        } for option in options]
+
+        return jsonify({
+            "poll_id": poll_id,
+            "options": options_list
+        }), HTTPStatus.OK
+    
     except Exception as e:
         return error_response(f"An unexpected error ocurred. {e}", HTTPStatus.INTERNAL_SERVER_ERROR)

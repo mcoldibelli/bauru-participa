@@ -54,3 +54,15 @@ def create_poll_option(poll_id, description):
 
     except Exception as e:
         raise Exception(f"Failed to create poll option: {str(e)}")
+
+def list_poll_options(poll_id: int) -> List[PollOption]:
+    try:
+        poll = db.session.query(Poll).filter(Poll.id == poll_id).first()
+
+        if not poll:
+            raise Exception(f"Poll with ID {poll_id} not found")
+
+        return poll.options
+
+    except Exception as e:
+        raise Exception(f"Failed to list poll options: {str(e)}")

@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from http.client import BAD_REQUEST
 from flask import Blueprint, request, jsonify
-from app.services.poll_service import create_poll, create_poll_option, delete_poll, list_all_polls, list_poll_by_id, list_poll_options
+from app.services.poll_service import create_poll, create_poll_option, delete_poll, delete_poll_option, list_all_polls, list_poll_by_id, list_poll_options
 from database.models import Poll, PollOption
 from database.database import db
 
@@ -130,5 +130,30 @@ def list_poll_options_route(poll_id):
             "options": options_list
         }), HTTPStatus.OK
     
+    except Exception as e:
+        return error_response(f"An unexpected error ocurred. {e}", HTTPStatus.INTERNAL_SERVER_ERROR)
+
+@poll_bp.route("/<int:poll_id>/opcoes/<int:option_id>", methods=["DELETE"])
+def delete_poll_option_route(poll_id: int, option_id: int):
+    try:
+        if poll_id <= 0 or option_id <= 0:
+            return error_response("Invalid poll or option ID", HTTPStatus.BAD_REQUEST)
+
+        option_deleted = delete_poll_option(poll_id, option_id)
+
+        if not option_deleted:
+            return error_response(
+                f"Option with ID {option_id} not found in poll {poll_id}", 
+                HTTPStatus.NOT_FOUND
+            )
+
+        return jsonify({
+            "message": "Poll option deleted successfully",
+            "data": {
+                "poll_id": poll_id,
+                "option_id": option_id
+            }
+        }), HTTPStatus.OK
+
     except Exception as e:
         return error_response(f"An unexpected error ocurred. {e}", HTTPStatus.INTERNAL_SERVER_ERROR)

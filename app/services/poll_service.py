@@ -66,3 +66,22 @@ def list_poll_options(poll_id: int) -> List[PollOption]:
 
     except Exception as e:
         raise Exception(f"Failed to list poll options: {str(e)}")
+    
+def delete_poll_option(poll_id: int, option_id: int) -> bool:
+    try:
+        poll = db.session.query(Poll).filter(Poll.id == poll_id).first()
+
+        if not poll:
+            raise Exception(f"Poll with ID {poll_id} not found")
+
+        result = db.session.query(PollOption).filter(
+            PollOption.poll_id == poll_id,
+            PollOption.option_id == option_id
+        ).delete(synchronize_session=False)
+
+       
+        db.session.commit()
+        return result > 0
+    
+    except Exception as e:
+        raise e

@@ -19,7 +19,7 @@ class PollOption(Base):
     option_id = Column(Integer, primary_key=True)
     poll_id = Column(Integer, ForeignKey("polls.id"), nullable=False)
     description = Column(String(255), nullable=False)
-    poll = relationship("Poll", backref="options", cascade='all,delete')
+    poll = relationship("Poll", backref="options")
 
 class UserVote(Base):
     __tablename__ = 'users_vote'

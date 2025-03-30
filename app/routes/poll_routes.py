@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from http.client import BAD_REQUEST
 from flask import Blueprint, request, jsonify
-from app.services.poll_service import create_poll, create_poll_option, delete_poll, delete_poll_option, list_all_polls, list_poll_by_id, list_poll_options
+from app.services.poll_service import create_poll, create_poll_option, delete_poll, delete_poll_option, list_all_polls, list_poll_by_id, list_poll_options, vote_on_poll
 from database.models import Poll, PollOption
 from database.database import db
 
@@ -154,6 +154,36 @@ def delete_poll_option_route(poll_id: int, option_id: int):
                 "option_id": option_id
             }
         }), HTTPStatus.OK
+
+    except Exception as e:
+        return error_response(f"An unexpected error ocurred. {e}", HTTPStatus.INTERNAL_SERVER_ERROR)
+
+@poll_bp.route("/<int:poll_id>/votar", methods=["POST"])
+def vote_on_poll_route(poll_id: int):
+    try:
+        if poll_id <= 0:
+            return error_response("Invalid poll ID", HTTPStatus.BAD_REQUEST)
+  
+        data = request.get_json()
+        if not data:
+            return error_response("No input data provided", HTTPStatus.BAD_REQUEST)
+
+        vote = vote_on_poll(
+            user_id=data['user_id'],
+            poll_id=poll_id,
+            option_id=data['option_id']
+        )
+
+        return jsonify({
+            "message": "Vote registered successfully",
+            "data": {
+                "vote_id": vote.vote_id,
+                "user_id": vote.user_id,
+                "poll_id": poll_id,
+                "option_id": vote.poll_option_id,
+                "voted_at": vote.vote_at.isoformat()
+            }
+        }), HTTPStatus.CREATED
 
     except Exception as e:
         return error_response(f"An unexpected error ocurred. {e}", HTTPStatus.INTERNAL_SERVER_ERROR)

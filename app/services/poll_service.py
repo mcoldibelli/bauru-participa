@@ -1,5 +1,5 @@
 from typing import List, Optional
-from database.models import Poll, PollOption
+from database.models import Poll, PollOption, User, UserVote
 from database.database import db
 
 def create_poll(title: str, description: str) -> Poll:
@@ -82,6 +82,41 @@ def delete_poll_option(poll_id: int, option_id: int) -> bool:
        
         db.session.commit()
         return result > 0
+    
+    except Exception as e:
+        raise e
+
+def vote_on_poll(user_id:int, poll_id: int, option_id: int) -> UserVote:
+    try:
+        poll = db.session.query(Poll).filter(Poll.id == poll_id).first()
+        if not poll:
+            raise Exception(f"Poll with ID {poll_id} not found")
+
+        user = db.session.query(User).filter(User.id == user_id).first()
+        if not user:
+            raise Exception(f"User with ID {user_id} not found")
+
+        option = db.session.query(PollOption).filter(
+            PollOption.option_id == option_id,
+            PollOption.poll_id == poll_id
+        ).first()
+        if not option:
+            raise Exception(f"Option with ID {option_id} not found in poll {poll_id}")
+
+        existing_vote = db.session.query(UserVote).join(PollOption).filter(
+            UserVote.user_id == user_id,
+            PollOption.poll_id == poll_id
+        ).first()
+        if existing_vote:
+            raise Exception(f"User {user_id} has already voted on poll {poll_id}")
+
+        new_vote = UserVote(
+            user_id=user_id,
+            poll_option_id=option_id
+        )
+        db.session.add(new_vote)
+        db.session.commit()
+        return new_vote
     
     except Exception as e:
         raise e

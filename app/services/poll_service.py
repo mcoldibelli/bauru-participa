@@ -1,4 +1,6 @@
-from typing import List, Optional
+from typing import Dict, List, Optional
+
+from sqlalchemy import func
 from database.models import Poll, PollOption, User, UserVote
 from database.database import db
 
@@ -120,3 +122,36 @@ def vote_on_poll(user_id:int, poll_id: int, option_id: int) -> UserVote:
     
     except Exception as e:
         raise e
+    
+def get_poll_results(poll_id: int) -> Dict:
+    try:
+        poll = db.session.query(Poll).filter(Poll.id == poll_id).first()
+        if not poll:
+            raise Exception(f"Poll with ID {poll_id} not found")
+
+        results = db.session.query(
+            PollOption.option_id, PollOption.description, func.count(UserVote.vote_id).label('votes')
+        ).outerjoin(
+            UserVote, UserVote.poll_option_id == PollOption.option_id
+        ).filter(
+            PollOption.poll_id == poll_id
+        ).group_by(
+            PollOption.option_id, PollOption.description
+        ).all()
+
+        total_votes = sum(result.votes for result in results)
+
+        options_results = [{
+            "option_id": result.option_id,
+            "description": result.description,
+            "votes": result.votes,
+            "percentage": f"{round((result.votes / total_votes * 100), 2)} %" if total_votes > 0 else 0
+        } for result in results]
+
+        return {
+            "total votes": total_votes,
+            "options": options_results
+        }
+
+    except Exception as e:
+        raise Exception(f"Failed to get poll results: {str(e)}")

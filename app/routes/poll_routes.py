@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from http.client import BAD_REQUEST
 from flask import Blueprint, request, jsonify
-from app.services.poll_service import create_poll, list_all_polls, list_poll_by_id
+from app.services.poll_service import create_poll, delete_poll, list_all_polls, list_poll_by_id
 from database.models import Poll
 from database.database import db
 
@@ -61,5 +61,22 @@ def list_poll_route(poll_id):
             "description": poll.description
         }), HTTPStatus.OK
 
+    except Exception as e:
+        return error_response(str(e), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+@poll_bp.route("/<int:poll_id>", methods=["DELETE"])
+def delete_poll_route(poll_id):
+
+    try:
+        if poll_id <= 0:
+            return error_response(f"Invalid poll ID", HTTPStatus.BAD_REQUEST)
+    
+        poll_deleted = delete_poll(poll_id)
+
+        if not poll_deleted:
+            return error_response(f"Poll with ID {poll_id} not found", HTTPStatus.NOT_FOUND)
+        
+        return jsonify({"message":"Poll deleted with success"}), 200
+        
     except Exception as e:
         return error_response(str(e), HTTPStatus.INTERNAL_SERVER_ERROR)

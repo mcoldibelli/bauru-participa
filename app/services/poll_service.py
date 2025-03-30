@@ -25,3 +25,16 @@ def list_poll_by_id(poll_id: int) -> Optional[Poll]:
         return db.session.query(Poll).filter(Poll.id == poll_id).first()
     except Exception as e:
         raise e
+    
+def delete_poll(poll_id: int) -> bool:
+    try:
+        poll = db.session.query(Poll).filter(Poll.id == poll_id).first()
+
+        if poll:
+            db.session.delete(poll)
+            db.session.commit()
+            return True
+        return False
+    
+    except Exception as e:
+        raise e

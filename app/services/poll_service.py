@@ -20,7 +20,7 @@ class PollService:
         return user
 
     @classmethod
-    def create_poll(title: str, description: str) -> Poll:
+    def create_poll(cls, title: str, description: str) -> Poll:
         try:
             new_poll = Poll(
                 title=title.strip(),
@@ -35,7 +35,7 @@ class PollService:
             raise Exception(f"Failed to create poll: {str(e)}")
     
     @classmethod
-    def list_all_polls() -> List[Poll]:
+    def list_all_polls(cls) -> List[Poll]:
         try:
             return db.session.query(Poll).all()
         except Exception as e:

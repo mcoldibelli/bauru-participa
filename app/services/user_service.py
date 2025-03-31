@@ -1,3 +1,4 @@
+from typing import List
 from database.models import User
 from database.database import db
 
@@ -14,3 +15,11 @@ class UserService:
 
         except Exception as e:
             raise Exception(f"Failed to create user: {str(e)}")
+    
+    @classmethod
+    def list_all_users(cls) -> List[User]:
+        try:
+            return db.session.query(User).all()
+        except Exception as e:
+            raise Exception(f"Failed to create user: {str(e)}")
+    

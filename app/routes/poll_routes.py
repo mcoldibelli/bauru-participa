@@ -1,5 +1,4 @@
 from http import HTTPStatus
-from http.client import BAD_REQUEST
 from flask import Blueprint, request, jsonify
 from app.services import PollService
 from database.models import Poll, PollOption

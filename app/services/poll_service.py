@@ -79,11 +79,14 @@ class PollService:
         try:
             cls.get_poll(poll_id)
 
+            db.session.query(UserVote).filter(
+                UserVote.poll_option_id == option_id
+            ).delete(synchronize_session=False)
+
             result = db.session.query(PollOption).filter(
                 PollOption.poll_id == poll_id,
                 PollOption.option_id == option_id
             ).delete(synchronize_session=False)
-
         
             db.session.commit()
             return result > 0

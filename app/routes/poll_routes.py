@@ -51,9 +51,6 @@ class PollRoutes:
             
             poll = PollService.list_poll_by_id(poll_id)
 
-            if not poll:
-                return error_response(f"Poll with ID {poll_id} not found"), HTTPStatus.NOT_FOUND
-
             options = []
             for option in poll.options:
                 options.append({

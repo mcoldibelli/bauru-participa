@@ -19,7 +19,7 @@ class UserRoutes:
             user = UserService.create_user(data['name'])
 
             return jsonify({
-                "message": "Poll created with success",
+                "message": "User created successfully",
                 "data": {
                     "id": user.id,
                     "name": user.name

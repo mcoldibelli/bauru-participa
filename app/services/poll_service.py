@@ -44,7 +44,7 @@ class PollService:
     @classmethod
     def list_poll_by_id(cls, poll_id: int) -> Optional[Poll]:
         try:
-            return cls.get_poll()
+            return cls.get_poll(poll_id)
         except Exception as e:
             raise Exception(f"Failed to retrieve poll {poll_id}")
 
